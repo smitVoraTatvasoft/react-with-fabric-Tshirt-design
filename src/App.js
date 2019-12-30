@@ -16,19 +16,19 @@ class App extends React.Component {
   c = React.createRef();
   fileRef = React.createRef();
   printDivRef = React.createRef();
+  canvas = null;
 
   componentDidMount() {
-    const canvas = new fabric.Canvas(this.c.current, {});
-    this.setState({ canvas });
+    this.canvas = new fabric.Canvas(this.c.current, {});
 
-    canvas.on("selection:cleared", e => {
+    this.canvas.on("selection:cleared", e => {
       this.setState({
         activeTextColor: "black",
         activeObjectType: null
       });
     });
-    canvas.on("selection:created", this.selectionHandler);
-    canvas.on("selection:updated", this.selectionHandler);
+    this.canvas.on("selection:created", this.selectionHandler);
+    this.canvas.on("selection:updated", this.selectionHandler);
   }
 
   selectionHandler = e => {
@@ -53,7 +53,7 @@ class App extends React.Component {
           fabric.Image.fromURL(data, img => {
             img.scaleToHeight(200);
             img.scaleToWidth(150);
-            this.state.canvas.add(img);
+            this.canvas.add(img);
           });
           break;
         case "background":
@@ -71,16 +71,15 @@ class App extends React.Component {
 
   addTextElement = () => {
     const text = new fabric.IText("Smit");
-    this.state.canvas.add(text);
+    this.canvas.add(text);
   };
 
   removeActiveElement = () => {
-    const { canvas } = this.state;
-    canvas.remove(canvas.getActiveObject());
+    this.canvas.remove(this.canvas.getActiveObject());
   };
 
   saveImg = () => {
-    this.state.canvas.discardActiveObject().renderAll();
+    this.canvas.discardActiveObject().renderAll();
     const node = this.printDivRef.current;
     domToImage
       .toPng(node)
@@ -101,11 +100,11 @@ class App extends React.Component {
     const color = e.target.value;
     switch (passFrom) {
       case "text":
-        this.state.canvas.getActiveObject().set("fill", e.target.value);
+        this.canvas.getActiveObject().set("fill", e.target.value);
         this.setState({
           activeTextColor: e.target.value
         });
-        this.state.canvas.renderAll();
+        this.canvas.renderAll();
         break;
       case "background":
         this.setState({
